@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        mNextButton = (ImageButton) findViewById(R.id.next_button);
+        mNextButton = findViewById(R.id.next_button);
         mNextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
