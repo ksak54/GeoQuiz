@@ -19,6 +19,11 @@
     <string name="judgment_toast">Cheating is wrong.</string>
     <string name="noob_toast">NOOB!!! Can\'t even Cheat</string>
     <string name="Cheat_Clicks">You can\'t cheat anymore</string>
+    <string name="ch0">3 cheats available</string>
+    <string name="ch1">2 cheats available</string>
+    <string name="ch2">1 cheat available</string>
+    <string name="ch3">No cheat available</string>
+
 
 
 </resources>

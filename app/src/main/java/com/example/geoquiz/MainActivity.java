@@ -22,9 +22,12 @@ public class MainActivity extends AppCompatActivity {
     private static final String CHEATER= "CHEATER";
     private static final String ANS_QUE = "ANSWERED QUESTION";
     private static final String CHEAT_QUE = "CHEATED QUESTION";
-    private int a=1;
+    private static final String THIS_IS="This is";
+    private static final String THIS_IS2="This is2";
+    private ArrayList<Integer> cheatCounter = new ArrayList<>();
     private Button mtruebutton;
     private Button mfalsebutton;
+    private TextView mCheatCounter;
     private ImageButton mNextButton;
     private ImageButton mPrevButton;
     private TextView mQuestionTextView;
@@ -33,17 +36,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Integer> cQuestion =  new ArrayList<>();
     private ArrayList<Integer> aQuestion = new ArrayList<>();
     private ArrayList<Integer> cheatClicks = new ArrayList<>();
-    private void cheatButtonToast(){
-//        if(cQuestion.isEmpty()){
-//            Toast.makeText(this,"You can press CHEAT button 3 times",Toast.LENGTH_SHORT).show();
-//        }
-        if(cQuestion.get(cQuestion.size()-1)<4){
-            Toast.makeText(this,3-(cQuestion.get(cQuestion.size()-1))+"attempt remaining",Toast.LENGTH_SHORT).show();
-        }
-        else
-            mCheatButton.setClickable(false);
 
-    }
     private void setClicks(){
         if(aQuestion.contains(mCurrentIndex)){
             mtruebutton.setClickable(false);
@@ -53,16 +46,18 @@ public class MainActivity extends AppCompatActivity {
             mtruebutton.setClickable(false);
             mfalsebutton.setClickable(false);
         }
-        else if(cheatClicks.contains(3)){
-            mCheatButton.setClickable(false);
-//            Toast.makeText(this,R.string.Cheat_Clicks,Toast.LENGTH_SHORT).show();
-        }
         else{
             mtruebutton.setClickable(true);
             mfalsebutton.setClickable(true);
         }
     }
-
+    private cheatClass[] mCheatBank = new cheatClass[] {
+            new cheatClass(R.string.ch0),
+            new cheatClass(R.string.ch1),
+            new cheatClass(R.string.ch2),
+            new cheatClass(R.string.ch3),
+    };
+    private int mCheaterIndex = 0;
 
     private Question[] mQuestionBank = new Question[] {
             new Question(R.string.question_oceans, true),
@@ -74,12 +69,25 @@ public class MainActivity extends AppCompatActivity {
     };
     private int mCurrentIndex = 0;
 
+
     private void updateQuestion() {
 //        Log.d(TAG, "Updating question text for question #" + mCurrentIndex,
 //                new Exception());
         int question = mQuestionBank[mCurrentIndex].getTextResId();
         mQuestionTextView.setText(question);
     }
+    private void setCheatText(){
+        int que = mCheatBank[mCheaterIndex].getCtextId();
+        if(cheatCounter.size()>=3)
+            mCheatCounter.setText(que);
+        else if(cheatCounter.size()==2)
+            mCheatCounter.setText(que);
+        else if(cheatCounter.size()==1)
+            mCheatCounter.setText(que);
+        else
+            mCheatCounter.setText(que);
+    }
+
 
     private void cheaterStatus(){
         if(cQuestion.contains(mCurrentIndex))
@@ -95,8 +103,10 @@ public class MainActivity extends AppCompatActivity {
 
             if (userPressedTrue == answerIsTrue) {
                 messageResId = R.string.judgment_toast;
+                setClicks();
             } else {
                 messageResId = R.string.noob_toast;
+                setClicks();
             }
         } else {
         if (userPressedTrue == answerIsTrue) {
@@ -129,15 +139,19 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
         mCheatButton = (Button) findViewById(R.id.cheat_button);
+        mCheatCounter = (TextView) findViewById(R.id.Chances);
+
         mCheatButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 boolean answerIsTrue = mQuestionBank[mCurrentIndex].isAnswerTrue();
                 Intent intent = newIntent(MainActivity.this, answerIsTrue,mCurrentIndex);
                 startActivityForResult(intent, REQUEST_CODE_CHEAT);
-                cheatClicks.add(a);
-                a++;
-//                cheatButtonToast();
+                ++mCheaterIndex;
+                if(cheatCounter.size()>2){
+                    mCheatButton.setClickable(false);
+                }
+
             }
         });
 
@@ -190,9 +204,15 @@ public class MainActivity extends AppCompatActivity {
             mIsCheater = savedInstanceState.getBoolean(CHEATER , false);
             aQuestion = savedInstanceState.getIntegerArrayList(ANS_QUE);
             cQuestion = savedInstanceState.getIntegerArrayList(CHEAT_QUE);
+            cheatCounter = savedInstanceState.getIntegerArrayList(THIS_IS);
+            mCheaterIndex = savedInstanceState.getInt(THIS_IS2);
         }
         updateQuestion();
         setClicks();
+        setCheatText();
+        if(cheatCounter.size()>2){
+            mCheatButton.setClickable(false);
+        }
 //        cheatButtonToast();
     }
     @Override
@@ -206,9 +226,9 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
             mIsCheater = CheatActivity.wasAnswerShown(data);
+            cheatCounter.add(CheatActivity.cheatcounter(data));
             cQuestion.add(CheatActivity.cheatingIndex(data));
-
-
+            setCheatText();
         }
 
     }
@@ -220,6 +240,8 @@ public class MainActivity extends AppCompatActivity {
         savedInstanceState.putBoolean(CHEATER,mIsCheater);
         savedInstanceState.putIntegerArrayList(CHEAT_QUE,cQuestion);
         savedInstanceState.putIntegerArrayList(ANS_QUE,aQuestion);
+        savedInstanceState.putIntegerArrayList(THIS_IS,cheatCounter);
+        savedInstanceState.putInt(THIS_IS2,mCheaterIndex);
     }
 //    @Override
 //    public void onRestoreInstanceState(Bundle savedInstanceState){
